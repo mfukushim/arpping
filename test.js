@@ -1,7 +1,7 @@
 'use strict';
 
 const arpping = require('./index.js')({
-    timeout: 8,
+    timeout: 5,
     includeEndpoints: true
 });
 
@@ -46,10 +46,10 @@ var tests = {
         });
     },
     discover: (refIP) => {
-        test(arpping.discover, [refIP], (time, err, hosts) => {
+        test(arpping.discover, [refIP], (time, err, found) => {
             console.log('\n--------------------------------');
             if (err) return console.log('Error during discover: ' + err);
-            console.log(JSON.stringify(hosts, null, 4));
+            console.log(`Found ${found.length} host(s):\n${JSON.stringify(found, null, 4)}`);
             console.log(`\nFinished discover scan in ${time}s`);
         });
     },
@@ -57,8 +57,8 @@ var tests = {
         test(arpping.search.byIpAddress, [ips, refIP], (time, err, found, missing) => {
             console.log('\n--------------------------------');
             if (err) return console.log('Error during searchByIpAddress: ' + err);
-            console.log(`Found ${found.length} hosts:\n${JSON.stringify(found, null, 4)}`);
-            console.log(`${missing.length} hosts missing:\n' ${missing}`);
+            console.log(`Found ${found.length} host(s):\n${JSON.stringify(found, null, 4)}`);
+            console.log(`${missing.length} host(s) missing:\n' ${missing}`);
             console.log(`\nFinished search by ip in ${time}s`);
         });
     },
@@ -66,8 +66,8 @@ var tests = {
         test(arpping.search.byMacAddress, [macs, refIP], (time, err, found, missing) => {
             console.log('\n--------------------------------');
             if (err) return console.log('Error during searchByMacAddress: ' + err);
-            console.log(`Found ${found.length} hosts:\n${JSON.stringify(found, null, 4)}`);
-            console.log(`${missing.length} hosts missing:\n' ${missing}`);
+            console.log(`Found ${found.length} host(s):\n${JSON.stringify(found, null, 4)}`);
+            console.log(`${missing.length} mac addresses not found:\n' ${missing}`);
             console.log(`\nFinished search by mac in ${time}s`);
         });
     },
@@ -75,7 +75,7 @@ var tests = {
         test(arpping.search.byMacType, [type, refIP], (time, err, found) => {
             console.log('\n--------------------------------');
             if (err) return console.log('Error during searchByMacType: ' + err);
-            console.log(`Found ${found.length} hosts:\n${JSON.stringify(found, null, 4)}`);
+            console.log(`Found ${found.length} host(s):\n${JSON.stringify(found, null, 4)}`);
             console.log(`\nFinished search by macType in ${time}s`);
         });
     },
@@ -83,8 +83,8 @@ var tests = {
         test(arpping.ping, [ips], (time, err, found, missing) => {
             console.log('\n--------------------------------');
             if (err) return console.log('Error during ping: ' + err);
-            console.log(`Found ${found.length} hosts:\n${found.join('\n')}`);
-            console.log(`${missing.length} hosts missing:\n' ${missing}`);
+            console.log(`Found ${found.length} host(s):\n${found.join('\n')}`);
+            console.log(`${missing.length} host(s) missing:\n' ${missing}`);
             console.log(`\nFinished ping in ${time}s`);
         });
     },
@@ -92,8 +92,8 @@ var tests = {
         test(arpping.arp, [ips], (time, err, found, missing) => {
             console.log('\n--------------------------------');
             if (err) return console.log('Error during arp: ' + err);
-            console.log(`Found ${found.length} hosts:\n${JSON.stringify(found, null, 4)}`);
-            console.log(`${missing.length} hosts missing:\n' ${missing}`);
+            console.log(`Found ${found.length} host(s):\n${JSON.stringify(found, null, 4)}`);
+            console.log(`${missing.length} host(s) missing:\n' ${missing}`);
             console.log(`\nFinished arp in ${time}s`);
         });
     }
