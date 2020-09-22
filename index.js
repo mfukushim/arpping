@@ -2,7 +2,7 @@
 
 const os = require('os');
 const { exec } = require('child_process');
-const Netmask = require('netmask').Netmask;
+const { Netmask } = require('netmask');
 
 const macLookup = require('./macLookup.js');
 
@@ -46,20 +46,18 @@ function Arpping({ timeout = 5, includeEndpoints = false, useCache = true, cache
 * @param {String} ip
 * @param {Number} mask
 */
-Arpping.prototype._getFullRange = function(ip, mask = 24) {
+Arpping.prototype._getFullRange = function(ip, mask) {
     // don't use default assignment so false-y values are overwritten
     ip = ip || this.myIP;
+    mask = mask || this.myMask || 24;
     // add mask to ip eg xxx.xxx.xxx.xxx/yy
     ip = ip + '/' + mask;
 
-    var range = [];
-    var block = new Netmask(ip);
-    range.push(block.base);
-    block.forEach((ip, _, index) => range.push(ip));
+    const block = new Netmask(ip);
+    const range = [ block.base ];
+    block.forEach(ip => range.push(ip));
     range.push(block.broadcast);
-    return this.includeEndpoints ? 
-        range:
-        range.splice(1, range.length-2);
+    return this.includeEndpoints ? range: range.splice(1, range.length - 2);
 }
 
 /**
@@ -102,7 +100,7 @@ Arpping.prototype.discover = function(refIP, mask = 24, retry = true) {
         return new Promise((resolve, reject) => resolve(this.cache));
     }
     if (!refIP && !this.myIP) {
-        if (retry) return this.findMyInfo().then(info => this.discover(info.ip, false));
+        if (retry) return this.findMyInfo().then(info => this.discover(info.ip, mask, false));
         return new Promise((resolve, reject) => reject(new Error('Failed to find host IP address')));
     }
 
