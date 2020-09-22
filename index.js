@@ -51,10 +51,8 @@ Arpping.prototype._getFullRange = function(ip, mask) {
     // don't use default assignment so false-y values are overwritten
     ip = ip || this.myIP;
     mask = mask || this.myMask || 24;
-    // add mask to ip eg xxx.xxx.xxx.xxx/yy
-    ip = ip + '/' + mask;
 
-    const block = new Netmask(ip);
+    const block = new Netmask(ip, mask);
     const range = [ block.base ];
     block.forEach(ip => range.push(ip));
     range.push(block.broadcast);
