@@ -5,6 +5,7 @@ const { exec } = require('child_process');
 const { Netmask } = require('netmask');
 
 const macLookup = require('./macLookup.js');
+const { hexToNetmask } = require('./utils.js');
 
 var flag,
     ipCommand,
@@ -79,7 +80,7 @@ Arpping.prototype.findMyInfo = function() {
                 if (output.split('status: ')[1] == 'inactive') return reject(new Error('No wifi connection'));
             }
             var ip = output.slice(output.indexOf('inet ') + 5, output.indexOf(' netmask')).trim();
-            var mask = output.slice(output.indexOf('netmask ') + 5, output.indexOf(' broadcast')).trim();
+            var mask = hexToNetmask(output.slice(output.indexOf('netmask ') + 8, output.indexOf(' broadcast')).trim());
             var mac = output.slice(output.indexOf('ether ')).split('\n')[0].split(' ')[1].trim();
             var type = macLookup(mac);
 
