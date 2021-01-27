@@ -167,7 +167,7 @@ Arpping.prototype.arp = function(range) {
                     var mac = ""
                     if (osType === 'Linux') {
                         mac = stdout.split('\n')[1].replace(/ +/g, ' ').split(' ')[2];
-                        mac = mac.includes(":") ? mac : ":::::"
+                        mac = mac?.includes(":") ? mac : ":::::"
                     } else if (osType === 'Darwin') {
                         mac = stdout.split(' ')[3];
                     } else {
