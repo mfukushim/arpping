@@ -64,13 +64,17 @@ Arpping.prototype.findMyInfo = function() {
             var ip = null;
             var mac = null;
             if (osType == 'Linux') {
-                if (stdout.indexOf('wlan0') == -1) {
-                    ip = stdout.slice(stdout.indexOf('inet ')+5, stdout.indexOf(' netmask')).trim();
-                    mac = stdout.slice(stdout.indexOf('ether ')).split('\n')[0].split(' ')[1].trim();
+                //  TODO: It is better to set the target netmask,broadcast,etc by args. Assume eth0
+                let n = stdout.split('\n\n').filter(io => io.includes("inet")
+                  && io.includes("netmask 255.255.255.0")
+                  && io.trim().includes("eth0:"));
+                if (n && n.length > 0) {
+                    let m = n[0].match(/inet ([^/s]+?) /)
+                    ip = m ? m[1] : ""
+                    let p = n[0].match(/ether ([^/s].+?) /)
+                    mac = p ? p[1] : ""
                 } else {
-                    output = stdout.split('wlan0')[1];
-                    ip = output.slice(output.indexOf('inet ') + 5, output.indexOf(' netmask')).trim();
-                    mac = output.slice(output.indexOf('ether ')).split('\n')[0].split(' ')[1].trim();
+                    return reject(new Error('No interface'));
                 }
             } else if(osType == 'Windows_NT') {
                 ip = stdout.slice(stdout.indexOf('IPv4 Address'), stdout.indexOf('Subnet Mask')).trim();
@@ -106,7 +110,6 @@ Arpping.prototype.discover = function(refIP, retry = true) {
         if (retry) return this.findMyInfo().then(info => this.discover(info.ip, false));
         return new Promise((resolve, reject) => reject(new Error('Failed to find host IP address')));
     }
-
     var range = this._getFullRange(refIP);
     return this.ping(range).then(({ hosts }) => this.arp(hosts)).then(({ hosts }) => {
         this.cache = hosts.slice(0);
@@ -163,6 +166,7 @@ Arpping.prototype.arp = function(range) {
                     //  reference https://github.com/telemansoft/arpping
                     var mac = ""
                     if (osType === 'Linux') {
+                        console.log("stdout:",stdout)
                         mac = stdout.split('\n')[1].replace(/ +/g, ' ').split(' ')[2];
                     } else if (osType === 'Darwin') {
                         mac = stdout.split(' ')[3];
