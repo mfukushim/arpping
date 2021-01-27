@@ -64,9 +64,14 @@ Arpping.prototype.findMyInfo = function() {
             var ip = null;
             var mac = null;
             if (osType == 'Linux') {
-                if (stdout.indexOf('wlan0') == -1) return reject(new Error('No wifi connection'));
-                output = stdout.split('wlan0')[1];
-                ip = output.slice(output.indexOf('inet ') + 5, output.indexOf(' netmask')).trim();
+                if (stdout.indexOf('wlan0') == -1) {
+                    ip = stdout.slice(stdout.indexOf('inet ')+5, stdout.indexOf(' netmask')).trim();
+                    mac = stdout.slice(stdout.indexOf('ether ')).split('\n')[0].split(' ')[1].trim();
+                } else {
+                    output = stdout.split('wlan0')[1];
+                    ip = output.slice(output.indexOf('inet ') + 5, output.indexOf(' netmask')).trim();
+                    mac = output.slice(output.indexOf('ether ')).split('\n')[0].split(' ')[1].trim();
+                }
             } else if(osType == 'Windows_NT') {
                 ip = stdout.slice(stdout.indexOf('IPv4 Address'), stdout.indexOf('Subnet Mask')).trim();
                 ip = ip.slice(ip.indexOf(':')+1, ip.indexOf('(Preferred)')).trim();
